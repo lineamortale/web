@@ -5,7 +5,8 @@
 - In home page vengono mostrate solo **2 mod scelte**:
   - OptiFabric Ultra
   - Sodium Extended
-- Esiste una nuova pagina `mods.html` dove vedere **tutte le mod** con la relativa **categoria**.
+- Esiste una nuova pagina `mods.html` con grafica uguale alla home (font, colori e stile) dove vedere **tutte le mod**.
+- La categoria è filtrabile tramite un menu con tutti i tipi di categoria disponibili.
 
 ## Admin completo nel sito
 
