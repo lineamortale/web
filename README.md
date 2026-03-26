@@ -4,15 +4,16 @@
 
 Gli admin possono ora aggiungere nuove mod **direttamente dal sito** tramite un form dedicato.
 
-### Come attivare la modalità admin
+### Come fare login admin
 
-Nel browser:
+Nella navbar trovi il pulsante **Admin Login**.
 
-```js
-localStorage.setItem("modhub_role", "admin")
-```
+Credenziali richieste:
 
-Poi ricarica la pagina.
+- `username: tigercecco`
+- `password: tigercecco`
+
+Dopo login corretto il sito imposta automaticamente `modhub_role = "admin"` in `localStorage` e ricarica la pagina.
 
 ### Cosa può fare l'admin nel sito
 
