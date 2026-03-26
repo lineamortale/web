@@ -1,27 +1,29 @@
 # web
 
-## Gestione mod e link download (solo admin)
+## Gestione mod e link download (solo admin, dal sito)
 
-Le modifiche a elenco mod e link download sono abilitate **solo per utenti admin**.
+Gli admin possono ora aggiungere nuove mod **direttamente dal sito** tramite un form dedicato.
 
-Nel frontend, il file `mods.json` viene caricato solo se è presente:
+### Come attivare la modalità admin
 
-- `localStorage.modhub_role = "admin"`
+Nel browser:
 
-Se il ruolo non è `admin`, il sito usa automaticamente la lista mod di fallback incorporata nel bundle.
+```js
+localStorage.setItem("modhub_role", "admin")
+```
 
-### Dati supportati in `mods.json`
+Poi ricarica la pagina.
 
-- `id`
-- `name`
-- `category`
-- `description`
-- `version`
-- `mcVersion`
-- `downloads`
-- `image`
-- `color`
-- `downloadUrl`
-- `downloadLabel` (opzionale)
+### Cosa può fare l'admin nel sito
 
-> Nota: questa è una protezione lato client. Per sicurezza reale, valida i permessi lato server.
+- inserire nome, categoria, descrizione e metadati della mod;
+- impostare il link download (`downloadUrl`);
+- caricare un file locale dal form (viene creato automaticamente un link download);
+- impostare il testo del bottone download (`downloadLabel`).
+
+Le mod aggiunte dall'admin vengono salvate in `localStorage` (chiave `modhub_custom_mods`) e mostrate nella lista.
+
+## Note importanti
+
+- La protezione admin è lato client.
+- Per sicurezza reale, devi validare permessi e upload lato server/back-end.
