@@ -1,48 +1,48 @@
 # web
 
-## Nuova struttura richiesta
+## Requested structure
 
-- In home page vengono mostrate solo **2 mod scelte**:
+- The home page shows only **2 selected mods**:
   - OptiFabric Ultra
   - Sodium Extended
-- Esiste una nuova pagina `mods.html` con grafica uguale alla home (font, colori e stile) dove vedere **tutte le mod**.
-- La categoria è filtrabile tramite un menu con tutti i tipi di categoria disponibili.
+- There is a dedicated `mods.html` page with the same visual style as home (font, colors, and UI style) that shows **all mods**.
+- Categories are filterable through a menu containing all available category types.
 
-## Admin completo nel sito
+## Full admin access in the site
 
-Gli admin ora hanno controllo completo dal frontend:
+Admins now have full frontend control:
 
-- aggiunta nuove mod;
-- modifica mod esistenti;
-- eliminazione mod esistenti;
-- gestione link download e label;
-- caricamento file locale per generare link download.
+- create new mods;
+- edit existing mods;
+- delete existing mods;
+- manage download links and button labels;
+- upload a local file to generate a download link.
 
-## Login admin
+## Admin login
 
-Usa il pulsante **Admin Login** nella navbar.
+Use the **Admin Login** button in the navbar.
 
-Credenziali:
+Credentials:
 
 - `username: tigercecco`
 - `password: tigercecco`
 
-Dopo login corretto il sito salva `modhub_role = "admin"` in `localStorage`.
+After successful login, the site stores `modhub_role = "admin"` in `localStorage`.
 
-## Persistenza dati admin
+## Admin data persistence
 
-Le modifiche admin vengono salvate in `localStorage` con chiave `modhub_custom_mods`.
+Admin changes are saved in `localStorage` under the key `modhub_custom_mods`.
 
-## Pulsanti e link
+## Buttons and links
 
-I pulsanti/link principali ora portano sempre da qualche parte:
+Main buttons/links now always go somewhere:
 
-- navbar: pagina mod / features / Discord;
-- hero CTA: porta a `/mods.html`;
-- explore CTA: porta a `/mods.html`;
-- footer link: privacy/terms/contact con URL reali.
+- navbar: mods page / features / Discord;
+- hero CTA: goes to `/mods.html`;
+- explore CTA: goes to `/mods.html`;
+- footer links: privacy/terms/contact with real URLs.
 
-## Nota sicurezza
+## Security note
 
-Questa è una soluzione client-side (demo/prototipo).
-Per un sito reale servono autenticazione, autorizzazioni e upload gestiti lato server.
+This is a client-side demo/prototype.
+For a real production website, authentication, authorization, and uploads must be handled server-side.

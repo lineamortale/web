@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ModHub • Tutte le Mod</title>
+    <title>ModHub • All Mods</title>
     <link rel="stylesheet" href="/assets/main-7BRnCNmq.css" />
   </head>
   <body style="background:var(--color-bg);min-height:100vh;">
@@ -15,33 +15,74 @@
           </div>
           <span class="font-pixel text-xs text-white tracking-tight">MOD<span class="gradient-text">HUB</span></span>
         </a>
-        <a href="/" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white">Torna alla home</a>
+        <div class="flex items-center gap-2">
+          <a href="/" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white">Back to home</a>
+          <button id="admin-login" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white">Admin Login</button>
+          <span id="admin-badge" class="px-3 py-2 rounded-lg text-xs border border-white/20 text-white hidden">Admin</span>
+        </div>
       </div>
     </nav>
 
     <main class="pt-24 pb-16 px-6 max-w-7xl mx-auto">
       <div class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Tutte le <span class="gradient-text">Mods</span></h1>
-        <p class="text-gray-500 text-lg max-w-xl mx-auto">Stesso stile della home, ma con catalogo completo e filtro per categoria.</p>
+        <h1 class="text-4xl md:text-5xl font-black text-white mb-4">All <span class="gradient-text">Mods</span></h1>
+        <p class="text-gray-500 text-lg max-w-xl mx-auto">Same style as home page with full catalog and category menu.</p>
       </div>
 
       <section class="card-surface rounded-2xl p-6 mb-8">
         <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <label for="category-filter" class="text-sm text-gray-300 font-semibold">Categoria</label>
+          <label for="category-filter" class="text-sm text-gray-300 font-semibold">Category</label>
           <select id="category-filter" class="rounded-lg px-4 py-2 text-sm text-white" style="background:#161616;border:1px solid var(--color-border)"></select>
         </div>
       </section>
+
+      <section id="admin-panel" class="card-surface rounded-2xl p-6 mb-8 hidden"></section>
 
       <section id="mods-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></section>
     </main>
 
     <script>
-      let allMods = [];
+      const ADMIN_USER = 'tigercecco';
+      const ADMIN_PASS = 'tigercecco';
+      const STORAGE_KEY = 'modhub_custom_mods';
+      const ROLE_KEY = 'modhub_role';
 
-      async function loadMods() {
+      let allMods = [];
+      let editingId = null;
+      const defaults = {
+        name: '',
+        category: 'Custom',
+        description: '',
+        version: 'v1.0.0',
+        mcVersion: '1.21.x',
+        downloads: 'New',
+        image: 'https://picsum.photos/seed/custommod/600/340',
+        color: '#7c3aed',
+        downloadUrl: '',
+        downloadLabel: 'Download Mod'
+      };
+
+      function isAdmin() {
+        return localStorage.getItem(ROLE_KEY) === 'admin';
+      }
+
+      function getLocalMods() {
+        try {
+          const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+          return Array.isArray(data) ? data : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveLocalMods(mods) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mods));
+      }
+
+      async function loadRemoteMods() {
         try {
           const res = await fetch('/mods.json', { cache: 'no-store' });
-          if (!res.ok) throw new Error('mods.json non trovato');
+          if (!res.ok) throw new Error('mods.json not found');
           const data = await res.json();
           return Array.isArray(data) ? data : [];
         } catch {
@@ -50,23 +91,31 @@
       }
 
       function getCategories(mods) {
-        return ['Tutte', ...new Set(mods.map((m) => m.category).filter(Boolean))];
+        return ['All', ...new Set(mods.map((m) => m.category).filter(Boolean))];
       }
 
       function renderCategoryMenu(mods) {
         const select = document.getElementById('category-filter');
         const categories = getCategories(mods);
+        const current = select.value || 'All';
         select.innerHTML = categories.map((c) => `<option value="${c}">${c}</option>`).join('');
-        select.addEventListener('change', () => renderMods(select.value));
+        select.value = categories.includes(current) ? current : 'All';
       }
 
-      function card(mod) {
+      function modCard(mod, category) {
+        const adminActions = isAdmin() ? `
+          <div class="flex gap-2 mt-2">
+            <button data-action="edit" data-id="${mod.id}" class="btn-github px-3 py-2 rounded-lg text-xs text-gray-300">Edit</button>
+            <button data-action="delete" data-id="${mod.id}" class="btn-github px-3 py-2 rounded-lg text-xs text-gray-300">Delete</button>
+          </div>
+        ` : '';
+
         return `
           <article class="card-surface rounded-2xl overflow-hidden flex flex-col">
             <div class="mod-image-wrapper relative aspect-video">
               <img src="${mod.image ?? 'https://picsum.photos/seed/fallback/600/340'}" alt="${mod.name ?? 'Mod'}" class="w-full h-full object-cover" />
               <span class="absolute top-3 left-3 text-xs font-semibold px-3 py-1 rounded-full" style="background:rgba(10,10,10,0.75);border:1px solid ${mod.color ?? '#7c3aed'}55;color:${mod.color ?? '#a78bfa'};backdrop-filter:blur(8px)">
-                ${mod.category ?? 'N/D'}
+                ${category}
               </span>
             </div>
             <div class="flex flex-col flex-1 p-5 gap-3">
@@ -80,28 +129,155 @@
               <a href="${mod.downloadUrl ?? '#'}" target="_blank" rel="noopener noreferrer" class="btn-download mt-2 w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold text-sm">
                 ${mod.downloadLabel ?? 'Download Mod'}
               </a>
+              ${adminActions}
             </div>
           </article>
         `;
       }
 
-      function renderMods(category = 'Tutte') {
+      function renderMods() {
+        const category = document.getElementById('category-filter').value || 'All';
         const grid = document.getElementById('mods-grid');
-        const filtered = category === 'Tutte' ? allMods : allMods.filter((m) => m.category === category);
+        const filtered = category === 'All' ? allMods : allMods.filter((m) => m.category === category);
 
         if (!filtered.length) {
-          grid.innerHTML = '<div class="card-surface rounded-2xl p-6 text-gray-400">Nessuna mod in questa categoria.</div>';
+          grid.innerHTML = '<div class="card-surface rounded-2xl p-6 text-gray-400">No mods found for this category.</div>';
           return;
         }
 
-        grid.innerHTML = filtered.map(card).join('');
+        grid.innerHTML = filtered.map((m) => modCard(m, m.category ?? 'N/A')).join('');
       }
 
-      loadMods().then((mods) => {
-        allMods = mods;
+      function openEdit(id) {
+        const mod = allMods.find((m) => String(m.id) === String(id));
+        if (!mod) return;
+        editingId = mod.id;
+        const form = document.getElementById('admin-form');
+        Object.keys(defaults).forEach((key) => {
+          if (form[key]) form[key].value = mod[key] ?? defaults[key];
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function deleteMod(id) {
+        allMods = allMods.filter((m) => String(m.id) !== String(id));
+        saveLocalMods(allMods);
         renderCategoryMenu(allMods);
-        renderMods('Tutte');
-      });
+        renderMods();
+      }
+
+      function bindGridActions() {
+        document.getElementById('mods-grid').addEventListener('click', (e) => {
+          const btn = e.target.closest('button[data-action]');
+          if (!btn || !isAdmin()) return;
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          if (action === 'edit') openEdit(id);
+          if (action === 'delete') deleteMod(id);
+        });
+      }
+
+      function renderAdminPanel() {
+        const panel = document.getElementById('admin-panel');
+        const loginBtn = document.getElementById('admin-login');
+        const badge = document.getElementById('admin-badge');
+
+        if (!isAdmin()) {
+          panel.classList.add('hidden');
+          loginBtn.classList.remove('hidden');
+          badge.classList.add('hidden');
+          return;
+        }
+
+        loginBtn.classList.add('hidden');
+        badge.classList.remove('hidden');
+        panel.classList.remove('hidden');
+
+        panel.innerHTML = `
+          <h3 class="text-white font-bold text-lg mb-4">Admin: ${editingId ? 'Edit mod' : 'Add new mod'}</h3>
+          <form id="admin-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input name="name" placeholder="Mod name" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="category" placeholder="Category" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="version" placeholder="Version" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="mcVersion" placeholder="Minecraft version" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="downloads" placeholder="Downloads (e.g. 1.2K)" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="image" placeholder="Image URL" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="color" placeholder="Color (e.g. #7c3aed)" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="downloadUrl" placeholder="Download URL" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input name="downloadLabel" placeholder="Download button text" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white" />
+            <input type="file" name="file" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-gray-300" />
+            <textarea name="description" placeholder="Mod description" class="rounded-lg px-3 py-2 bg-black/30 border border-white/10 text-white md:col-span-2"></textarea>
+            <div class="md:col-span-2 flex gap-2">
+              <button type="submit" class="btn-cta px-6 py-3 rounded-xl text-white font-semibold">${editingId ? 'Save changes' : 'Add mod'}</button>
+              <button type="button" id="cancel-edit" class="btn-github px-6 py-3 rounded-xl text-gray-300 font-semibold">Cancel</button>
+            </div>
+          </form>
+        `;
+
+        const form = document.getElementById('admin-form');
+        Object.keys(defaults).forEach((key) => {
+          if (form[key]) form[key].value = defaults[key] ?? '';
+        });
+
+        form.file.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          form.downloadUrl.value = URL.createObjectURL(file);
+          form.downloadLabel.value = `Download ${file.name}`;
+        });
+
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const values = Object.fromEntries(new FormData(form).entries());
+          const mod = { ...defaults, ...values };
+          if (!mod.name || !mod.downloadUrl) return;
+
+          if (editingId) {
+            allMods = allMods.map((m) => (String(m.id) === String(editingId) ? { ...m, ...mod, id: editingId } : m));
+          } else {
+            allMods = [{ id: Date.now(), ...mod }, ...allMods];
+          }
+
+          editingId = null;
+          saveLocalMods(allMods);
+          renderCategoryMenu(allMods);
+          renderAdminPanel();
+          renderMods();
+        });
+
+        document.getElementById('cancel-edit').addEventListener('click', () => {
+          editingId = null;
+          renderAdminPanel();
+        });
+      }
+
+      function bindLogin() {
+        document.getElementById('admin-login').addEventListener('click', () => {
+          const user = window.prompt('Username');
+          const pass = window.prompt('Password');
+          if (user === ADMIN_USER && pass === ADMIN_PASS) {
+            localStorage.setItem(ROLE_KEY, 'admin');
+            window.alert('Admin login successful');
+            renderAdminPanel();
+          } else {
+            window.alert('Invalid credentials');
+          }
+        });
+      }
+
+      async function init() {
+        const local = getLocalMods();
+        allMods = local.length ? local : await loadRemoteMods();
+        renderCategoryMenu(allMods);
+        renderAdminPanel();
+        renderMods();
+
+        document.getElementById('category-filter').addEventListener('change', renderMods);
+        bindLogin();
+        bindGridActions();
+      }
+
+      init();
     </script>
   </body>
 </html>
