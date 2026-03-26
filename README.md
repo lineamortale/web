@@ -7,6 +7,7 @@
   - Sodium Extended
 - There is a dedicated `mods.html` page with the same visual style as home (font, colors, and UI style) that shows **all mods**.
 - Categories are filterable through a menu containing all available category types.
+- Categories are rendered as a premium dark-purple left sidebar with badges, active/hover states, and built-in Filters (Game Version + Mod Loader).
 
 ## Full admin access in the site
 
