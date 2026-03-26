@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutte le Mod</title>
+    <link rel="stylesheet" href="/assets/main-7BRnCNmq.css" />
+    <style>
+      body { background: #0a0a0a; color: #e5e7eb; }
+      .wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+      .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); }
+      .card { background: #111; border: 1px solid #ffffff22; border-radius: 14px; padding: 16px; }
+      .cat { font-size: 12px; color: #a78bfa; }
+      .title { font-weight: 700; margin: 8px 0; }
+      .btn { display:inline-block; margin-top:10px; padding:8px 12px; border-radius:10px; background: linear-gradient(135deg,#f97316,#7c3aed); color:#fff; text-decoration:none; }
+      .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+      .back { color:#cbd5e1; text-decoration:none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <h1>Tutte le Mod</h1>
+        <a class="back" href="/">← Torna alla home</a>
+      </div>
+      <p>Qui trovi tutte le mod con la loro categoria.</p>
+      <div id="mods-grid" class="grid"></div>
+    </div>
+
+    <script>
+      async function loadMods() {
+        try {
+          const res = await fetch('/mods.json', { cache: 'no-store' });
+          if (!res.ok) throw new Error('mods.json non trovato');
+          const data = await res.json();
+          return Array.isArray(data) ? data : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function renderMods(mods) {
+        const grid = document.getElementById('mods-grid');
+        if (!mods.length) {
+          grid.innerHTML = '<div class="card">Nessuna mod disponibile.</div>';
+          return;
+        }
+
+        grid.innerHTML = mods.map((mod) => `
+          <article class="card">
+            <div class="cat">Categoria: ${mod.category ?? 'N/D'}</div>
+            <div class="title">${mod.name ?? 'Mod'}</div>
+            <div>${mod.description ?? ''}</div>
+            <a class="btn" href="${mod.downloadUrl ?? '#'}" target="_blank" rel="noopener noreferrer">
+              ${mod.downloadLabel ?? 'Download Mod'}
+            </a>
+          </article>
+        `).join('');
+      }
+
+      loadMods().then(renderMods);
+    </script>
+  </body>
+</html>
