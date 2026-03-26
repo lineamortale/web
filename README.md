@@ -1,30 +1,40 @@
 # web
 
-## Gestione mod e link download (solo admin, dal sito)
+## Admin completo nel sito
 
-Gli admin possono ora aggiungere nuove mod **direttamente dal sito** tramite un form dedicato.
+Gli admin ora hanno controllo completo dal frontend:
 
-### Come fare login admin
+- aggiunta nuove mod;
+- modifica mod esistenti;
+- eliminazione mod esistenti;
+- gestione link download e label;
+- caricamento file locale per generare link download.
 
-Nella navbar trovi il pulsante **Admin Login**.
+## Login admin
 
-Credenziali richieste:
+Usa il pulsante **Admin Login** nella navbar.
+
+Credenziali:
 
 - `username: tigercecco`
 - `password: tigercecco`
 
-Dopo login corretto il sito imposta automaticamente `modhub_role = "admin"` in `localStorage` e ricarica la pagina.
+Dopo login corretto il sito salva `modhub_role = "admin"` in `localStorage`.
 
-### Cosa può fare l'admin nel sito
+## Persistenza dati admin
 
-- inserire nome, categoria, descrizione e metadati della mod;
-- impostare il link download (`downloadUrl`);
-- caricare un file locale dal form (viene creato automaticamente un link download);
-- impostare il testo del bottone download (`downloadLabel`).
+Le modifiche admin vengono salvate in `localStorage` con chiave `modhub_custom_mods`.
 
-Le mod aggiunte dall'admin vengono salvate in `localStorage` (chiave `modhub_custom_mods`) e mostrate nella lista.
+## Pulsanti e link
 
-## Note importanti
+I pulsanti/link principali ora portano sempre da qualche parte:
 
-- La protezione admin è lato client.
-- Per sicurezza reale, devi validare permessi e upload lato server/back-end.
+- navbar: `#mods`, `#features`, Discord;
+- hero CTA: porta a `#mods`;
+- explore CTA: porta a `#mods`;
+- footer link: privacy/terms/contact con URL reali.
+
+## Nota sicurezza
+
+Questa è una soluzione client-side (demo/prototipo).
+Per un sito reale servono autenticazione, autorizzazioni e upload gestiti lato server.
