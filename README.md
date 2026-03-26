@@ -1,5 +1,12 @@
 # web
 
+## Nuova struttura richiesta
+
+- In home page vengono mostrate solo **2 mod scelte**:
+  - OptiFabric Ultra
+  - Sodium Extended
+- Esiste una nuova pagina `mods.html` dove vedere **tutte le mod** con la relativa **categoria**.
+
 ## Admin completo nel sito
 
 Gli admin ora hanno controllo completo dal frontend:
@@ -29,9 +36,9 @@ Le modifiche admin vengono salvate in `localStorage` con chiave `modhub_custom_m
 
 I pulsanti/link principali ora portano sempre da qualche parte:
 
-- navbar: `#mods`, `#features`, Discord;
-- hero CTA: porta a `#mods`;
-- explore CTA: porta a `#mods`;
+- navbar: pagina mod / features / Discord;
+- hero CTA: porta a `/mods.html`;
+- explore CTA: porta a `/mods.html`;
 - footer link: privacy/terms/contact con URL reali.
 
 ## Nota sicurezza
