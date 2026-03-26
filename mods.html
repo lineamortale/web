@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ModHub • Tutte le Mod</title>
+    <link rel="stylesheet" href="/assets/main-7BRnCNmq.css" />
+  </head>
+  <body style="background:var(--color-bg);min-height:100vh;">
+    <nav class="navbar-glass fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded flex items-center justify-center" style="background:linear-gradient(135deg, #f97316, #7c3aed)">
+            <span class="text-white font-bold">M</span>
+          </div>
+          <span class="font-pixel text-xs text-white tracking-tight">MOD<span class="gradient-text">HUB</span></span>
+        </a>
+        <a href="/" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white">Torna alla home</a>
+      </div>
+    </nav>
+
+    <main class="pt-24 pb-16 px-6 max-w-7xl mx-auto">
+      <div class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Tutte le <span class="gradient-text">Mods</span></h1>
+        <p class="text-gray-500 text-lg max-w-xl mx-auto">Stesso stile della home, ma con catalogo completo e filtro per categoria.</p>
+      </div>
+
+      <section class="card-surface rounded-2xl p-6 mb-8">
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <label for="category-filter" class="text-sm text-gray-300 font-semibold">Categoria</label>
+          <select id="category-filter" class="rounded-lg px-4 py-2 text-sm text-white" style="background:#161616;border:1px solid var(--color-border)"></select>
+        </div>
+      </section>
+
+      <section id="mods-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></section>
+    </main>
+
+    <script>
+      let allMods = [];
+
+      async function loadMods() {
+        try {
+          const res = await fetch('/mods.json', { cache: 'no-store' });
+          if (!res.ok) throw new Error('mods.json non trovato');
+          const data = await res.json();
+          return Array.isArray(data) ? data : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function getCategories(mods) {
+        return ['Tutte', ...new Set(mods.map((m) => m.category).filter(Boolean))];
+      }
+
+      function renderCategoryMenu(mods) {
+        const select = document.getElementById('category-filter');
+        const categories = getCategories(mods);
+        select.innerHTML = categories.map((c) => `<option value="${c}">${c}</option>`).join('');
+        select.addEventListener('change', () => renderMods(select.value));
+      }
+
+      function card(mod) {
+        return `
+          <article class="card-surface rounded-2xl overflow-hidden flex flex-col">
+            <div class="mod-image-wrapper relative aspect-video">
+              <img src="${mod.image ?? 'https://picsum.photos/seed/fallback/600/340'}" alt="${mod.name ?? 'Mod'}" class="w-full h-full object-cover" />
+              <span class="absolute top-3 left-3 text-xs font-semibold px-3 py-1 rounded-full" style="background:rgba(10,10,10,0.75);border:1px solid ${mod.color ?? '#7c3aed'}55;color:${mod.color ?? '#a78bfa'};backdrop-filter:blur(8px)">
+                ${mod.category ?? 'N/D'}
+              </span>
+            </div>
+            <div class="flex flex-col flex-1 p-5 gap-3">
+              <h3 class="text-white font-bold text-lg leading-tight">${mod.name ?? 'Mod'}</h3>
+              <p class="text-gray-500 text-sm leading-relaxed">${mod.description ?? ''}</p>
+              <div class="flex flex-wrap gap-2 mt-auto pt-2">
+                <span class="text-xs px-2 py-1 rounded-md font-mono" style="background:#1a1a1a;color:#9ca3af;border:1px solid #222">${mod.version ?? 'v1.0.0'}</span>
+                <span class="text-xs px-2 py-1 rounded-md font-mono" style="background:#1a1a1a;color:#9ca3af;border:1px solid #222">MC ${mod.mcVersion ?? '1.21.x'}</span>
+                <span class="text-xs px-2 py-1 rounded-md font-semibold" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25)">${mod.downloads ?? 'N/D'}</span>
+              </div>
+              <a href="${mod.downloadUrl ?? '#'}" target="_blank" rel="noopener noreferrer" class="btn-download mt-2 w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold text-sm">
+                ${mod.downloadLabel ?? 'Download Mod'}
+              </a>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderMods(category = 'Tutte') {
+        const grid = document.getElementById('mods-grid');
+        const filtered = category === 'Tutte' ? allMods : allMods.filter((m) => m.category === category);
+
+        if (!filtered.length) {
+          grid.innerHTML = '<div class="card-surface rounded-2xl p-6 text-gray-400">Nessuna mod in questa categoria.</div>';
+          return;
+        }
+
+        grid.innerHTML = filtered.map(card).join('');
+      }
+
+      loadMods().then((mods) => {
+        allMods = mods;
+        renderCategoryMenu(allMods);
+        renderMods('Tutte');
+      });
+    </script>
+  </body>
+</html>
