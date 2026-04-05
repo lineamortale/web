@@ -78,7 +78,8 @@
         </a>
         <div class="flex items-center gap-2">
           <a href="/" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white">Back to home</a>
-          <button id="admin-login" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white">Admin Login</button>
+          <a href="/login.html" id="admin-login" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white">Admin Login</a>
+          <button id="admin-logout" class="btn-github px-4 py-2 rounded-lg text-sm text-gray-300 hover:text-white hidden">Logout</button>
           <span id="admin-badge" class="px-3 py-2 rounded-lg text-xs border border-white/20 text-white hidden">Admin</span>
         </div>
       </div>
@@ -252,18 +253,12 @@
 
       function renderAdminPanel(prefill = null) {
         const panel = document.getElementById('admin-panel');
-        const loginBtn = document.getElementById('admin-login');
-        const badge = document.getElementById('admin-badge');
 
         if (!isAdmin()) {
           panel.classList.add('hidden');
-          loginBtn.classList.remove('hidden');
-          badge.classList.add('hidden');
           return;
         }
 
-        loginBtn.classList.add('hidden');
-        badge.classList.remove('hidden');
         panel.classList.remove('hidden');
 
         const value = { ...defaults, ...(prefill || {}) };
@@ -324,17 +319,25 @@
       }
 
       function bindLogin() {
-        document.getElementById('admin-login').addEventListener('click', () => {
-          const user = window.prompt('Username');
-          const pass = window.prompt('Password');
-          if (user === ADMIN_USER && pass === ADMIN_PASS) {
-            localStorage.setItem(ROLE_KEY, 'admin');
-            window.alert('Admin login successful');
-            renderAdminPanel();
-            renderMods();
-          } else {
-            window.alert('Invalid credentials');
-          }
+        const loginLink = document.getElementById('admin-login');
+        const logoutBtn = document.getElementById('admin-logout');
+        const badge = document.getElementById('admin-badge');
+
+        // Update UI based on login state
+        if (isAdmin()) {
+          loginLink.classList.add('hidden');
+          logoutBtn.classList.remove('hidden');
+          badge.classList.remove('hidden');
+        } else {
+          loginLink.classList.remove('hidden');
+          logoutBtn.classList.add('hidden');
+          badge.classList.add('hidden');
+        }
+
+        // Logout handler
+        logoutBtn.addEventListener('click', () => {
+          localStorage.removeItem(ROLE_KEY);
+          window.location.reload();
         });
       }
 
